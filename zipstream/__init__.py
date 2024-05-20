@@ -314,7 +314,7 @@ class ZipFile(zipfile.ZipFile):
                 if cmpr:
                     buf = cmpr.compress(buf)
                     compress_size = compress_size + len(buf)
-                yield self.fp.write(buf)
+                yield self.fp.write(buf), arcname, file_size
         if cmpr:
             buf = cmpr.flush()
             compress_size = compress_size + len(buf)

@@ -295,6 +295,7 @@ class ZipFile(zipfile.ZipFile):
         # Compressed size can be larger than uncompressed size
         zip64 = self._allowZip64 and \
                 zinfo.file_size * 1.05 > ZIP64_LIMIT
+        print(st, zinfo.filename, zinfo.file_size, self._allowZip64, zip64)
         yield self.fp.write(zinfo.FileHeader(zip64))
         file_size = 0
         if filename:

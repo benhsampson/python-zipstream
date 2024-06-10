@@ -215,9 +215,9 @@ class ZipFile(zipfile.ZipFile):
         kwargs = {'filename': filename, 'arcname': arcname, 'compress_type': compress_type}
         self.paths_to_write.append(kwargs)
 
-    def write_iter(self, arcname, iterable, compress_type=None):
+    def write_iter(self, arcname, iterable, compress_type=None, original_file_size=None):
         """Write the bytes iterable `iterable` to the archive under the name `arcname`."""
-        kwargs = {'arcname': arcname, 'iterable': iterable, 'compress_type': compress_type}
+        kwargs = {'arcname': arcname, 'iterable': iterable, 'compress_type': compress_type, 'original_file_size': original_file_size}
         self.paths_to_write.append(kwargs)
 
     def writestr(self, arcname, data, compress_type=None):
@@ -228,7 +228,7 @@ class ZipFile(zipfile.ZipFile):
             yield data
         return self.write_iter(arcname, _iterable(), compress_type=compress_type)
 
-    def __write(self, filename=None, iterable=None, arcname=None, compress_type=None):
+    def __write(self, filename=None, iterable=None, arcname=None, compress_type=None, original_file_size=None):
         """Put the bytes from filename into the archive under the name
         `arcname`."""
         if not self.fp:
@@ -264,6 +264,8 @@ class ZipFile(zipfile.ZipFile):
 
         if st:
             zinfo.file_size = st[6]
+        elif original_file_size:
+            zinfo.file_size = original_file_size
         else:
             zinfo.file_size = 0
         zinfo.flag_bits = 0x00
@@ -298,7 +300,7 @@ class ZipFile(zipfile.ZipFile):
         if filename:
             with open(filename, 'rb') as fp:
                 while 1:
-                    buf = fp.read(1024 * 8)
+                    buf = fp.read(8 * 1024)
                     if not buf:
                         break
                     file_size = file_size + len(buf)
